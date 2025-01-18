@@ -1,0 +1,15 @@
+.clickable {
+  cursor: pointer;
+}
+
+.p-tooltip {
+  max-width: 100rem;
+}
+
+#pnfil {
+  /*background-image: url('../../../assets/images/why-you-should-ng.jpg');*/
+  /*background-repeat: no-repeat;*/
+  /*background-attachment: fixed;*/
+  /*background-size: cover;*/
+  width: 100%
+}

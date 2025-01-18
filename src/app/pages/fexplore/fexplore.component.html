@@ -1,0 +1,179 @@
+<!--
+<div class="card">
+  <div class="flex flex-row flex-wrap card-container blue-container">
+    <div class="flex align-items-center justify-content-center w-4rem h-4rem bg-blue-500 font-bold text-white border-round m-2">1</div>
+    <div class="flex align-items-center justify-content-center w-4rem h-4rem bg-blue-500 font-bold text-white border-round m-2">2</div>
+    <div class="flex align-items-center justify-content-center w-4rem h-4rem bg-blue-500 font-bold text-white border-round m-2">3</div>
+  </div>
+</div>
+
+    <div class="p-text-nowrap p-text-truncate p-mr-6 p-mb-2" style="max-width: 20rem">
+      <i class="pi pi-folder p-mr-2" style="color: gold"></i><span>Long text does not wrap and overflows the parent.</span>
+    </div>
+    <div class="p-mr-6 p-mb-2 clickable">
+      <i class="pi pi-file-pdf p-mr-2" style="color: darkred"></i>Item 2
+    </div>
+    <div class="p-mr-6 p-mb-2"><i class="pi material-icons p-mr-2" style="font-size: 1.1rem">picture_as_pdf</i>Item 3</div>
+    <div class="p-mr-6 p-mb-2">Item 4</div>
+    <div class="p-mr-6 p-mb-2">Item 5</div>
+    <div class="p-mr-6 p-mb-2">Item 6</div>
+
+      pTooltip="{{item}}" tooltipPosition="bottom"
+      <div class="p-tooltip"></div>
+      [style]="{'height': '300px'}"
+-->
+
+<div class="p-card drop-column" style="font-family: Arial,sans-serif; font-size: 0.9rem">
+  <p-splitter [panelSizes]="[20,80]">
+    <ng-template pTemplate>
+      <div style="background-color: antiquewhite" style="min-width: 20rem">
+        <p-tree [value]="folders" selectionMode="single" [selection]="seldFolder"
+                (onNodeSelect)="onNodeSelect($event)" [contextMenu]="cm"
+                (onNodeContextMenuSelect)="onNodeSelect($event)">
+        </p-tree>
+      </div>
+    </ng-template>
+    <ng-template pTemplate>
+      <!--      <div>
+        <div class="p-text-left p-text-nowrap p-text-truncate p-ml-2 p-mr-2 p-mb-4"
+             style="width: auto">
+          File: <span style="color: saddlebrown">{{seldFile}}</span>[style]="{'width': '100%'}"
+        </div>-->
+      <p-panel [header]="seldFile" #pnl id="pnfil">
+        <div class="p-d-flex p-flex-wrap" (drop)="onDrop($event)" (dragover)="onDragOver($event)">
+          <!--             (dragenter)="dragFileEnter($event)">
+          (mouseover)="onMouseOver($event, file.name)"
+
+          pDroppable="file" (drop)="onDropFile($event)"
+          -->
+          <div *ngFor="let file of files" style="max-width: 20rem"
+               (click)="onClickFile($event, file, fmenu)"
+               [style]="file.style" (contextmenu)="onClickFile($event, file, fmenu)"
+               class="p-text-nowrap p-text-truncate p-mx-2 mb-2 clickable white-space-nowrap overflow-hidden text-overflow-ellipsis">
+            <i [class]="file.class" style="color: darkred"></i>&nbsp;{{file.name}}
+          </div>
+        </div>
+      </p-panel>
+      <!--      </div>-->
+
+      <p-blockUI [blocked]="filesPanelBlocked" [target]="pnl">
+        <i class="pi pi-spin pi-spinner" style="font-size: 3rem"></i>
+      </p-blockUI>
+    </ng-template>
+  </p-splitter>
+
+<!--  <div class="p-grid"> -->
+  <!--    <div class="p-col-10">minWidth: '100vmin'-->
+<!--    </div>-->
+<!--  </div>-->
+
+</div>
+
+<p-confirmPopup></p-confirmPopup>
+
+<p-contextMenu #cm [model]="mItems" [style]="{width: 'fit-content', overflow: 'hidden'}">
+</p-contextMenu>
+
+<p-menu #fmenu [popup]="true" [model]="fmItems" (onHide)="onHideFileMenu()">
+</p-menu>
+<!--<i class="material-icons mi-color-lens"></i>-->
+
+<!-- vw = %
+  [breakpoints]:  default wd = 50vw, and <= 960px: wd = 75vw, and <= 640px wd = 100%
+ -->
+<p-dialog [header]="dlgFolderHdr" [style]="{width: '50vw'}" [modal]="true"
+          [(visible)]="dlgFolderVisible" [breakpoints]="{'960px': '75vw', '640px': '100vw'}">
+
+  <div class="p-fluid p-mt-3">
+    <div class="p-field p-grid">
+      <label for="folderName" class="p-col-12 p-mb-2 p-md-2 p-mb-md-0">{{dlgLblName}}</label>
+      <div class="p-col-12 p-md-10">
+        <input pInputText id="folderName" type="text" [class]="folderNameClz"
+               [(ngModel)]="folderName" aria-describedby="folderName-help" #foldName
+               [readOnly]="dlgConfirmUpload">
+      </div>
+    </div><br/>
+    <div class="p-field p-grid" *ngIf="dlgConfirmUpload">
+      <label for="descr" class="p-col-12 p-my-2 p-md-2 p-mb-md-0">Deskripsi:</label>
+      <div class="p-col-12 p-md-10">
+        <textarea pInputTextarea id="descr" [(ngModel)]="description" class="w-full"
+                  placeholder="boleh dikosongkan" style="height: 3rem">
+        </textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="p-grid">
+    <div class="p-col-12 p-mb-2 p-md-2 p-mb-md-0">&nbsp;</div>
+    <div class="p-col-12 p-md-10">
+      <small id="folderName-help" class="p-error">{{folderNameBlank}}</small>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton pRipple type="button" icon="pi pi-check" (click)="onOkDlgFolder()"
+            label="OK" class="p-button-raised p-ml-2" style="width: 8rem">
+    </button>
+    <button pButton pRipple type="button" icon="pi pi-times" label="Batal" style="width: 8rem"
+            class="p-button-raised p-button-danger" (click)="dlgFolderVisible = false">
+    </button>
+  </ng-template>
+</p-dialog>
+
+
+<p-dialog header="Upload" [style]="{width: '50vw'}" [modal]="true"
+          [(visible)]="dlgUploadVisible" [breakpoints]="{'960px': '75vw', '640px': '100vw'}">
+<!--
+  <p-fileUpload name="myfile[]" (onSelect)="onSelectFileUpload($event)" fileLimit="1"
+                customUpload="true" (uploadHandler)="uploadFile($event)">
+&lt;!&ndash;
+    <ng-template pTemplate="toolbar">
+      &lt;!&ndash; [files]="uploadFiles"
+                  <div>Upload 3 Files</div>
+      &ndash;&gt;
+    </ng-template>
+&ndash;&gt;
+    <ng-template let-file pTemplate="file">
+      <div>{{file.name}}</div>
+    </ng-template>
+    &lt;!&ndash;
+              <ng-template pTemplate="content" let-files>
+                <div>Additional content.</div>
+              </ng-template>
+    &ndash;&gt;
+  </p-fileUpload>
+-->
+
+  <div class="p-fluid p-mt-3">
+    <div class="p-field p-grid">
+      <label for="folderName" class="p-col-12 p-mb-2 p-md-2 p-mb-md-0">File:</label>
+      <div class="p-col-8 p-md-9">
+        <input pInputText id="fileToUpload`" type="file" multiple
+               aria-describedby="folderName-help" #fileToUpload/>
+      </div>
+<!--
+      <div class="p-col-4 p-md-1 p-mt-2">
+        <button pButton pRipple icon="pi pi-upload" class="p-button-help p-ml-2"
+                (click)="onClickUpload(fileToUpload)">
+        </button>
+      </div>
+-->
+    </div>
+
+<!--
+    <div class="p-field p-grid">
+      <label for="descr" class="p-col-12 p-mb-2 p-md-2 p-mb-md-0">Deskripsi:</label>
+      <div class="p-col-12 p-md-10">
+        <textarea pInputTextarea id="descrip" [(ngModel)]="description"
+                  placeholder="boleh dikosongkan">
+        </textarea>
+      </div>
+    </div>
+-->
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton pRipple type="button" icon="pi pi-upload" (click)="onClickUpload(fileToUpload)"
+            label="OK" class="p-button-raised p-ml-2" style="width: 8rem">
+    </button>
+  </ng-template>
+</p-dialog>
