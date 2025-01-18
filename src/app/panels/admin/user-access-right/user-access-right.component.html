@@ -1,0 +1,144 @@
+<p-card>
+  <ng-template pTemplate="header">
+    <div class="flex overflow-hidden mb-0">
+      <div class="flex-grow-1 flex align-items-left justify-content-left font-bold m-2 px-3 pt-3 pb-0">
+        <h3>U d OA</h3>
+      </div>
+    </div>
+  </ng-template>
+
+<!-- 
+  <div class="grid mx-1 mt-0 mb-2">
+    <div class="col-2 col-offset-10 px-0" style="text-align: end;">
+      <p-button label="Save" icon="pi pi-save" class="w-max" (click)="save()"></p-button>
+    </div>
+  </div>[ngStyle]="{'padding': '0.1rem'}"
+ -->
+  <div class="flex justify-content-start overflow-hidden ml-1 my-0">
+    <h5>User</h5>
+  </div>
+
+  <div class="flex justify-content-start overflow-hidden ml-1">
+    <div class="flex-grow-1 flex align-items-center justify-content-center mr-1">
+      <p-table [value]="users" selectionMode="single" class="w-full" #tabel
+          responsiveLayout="stack" [breakpoint]="'960px'" [tableStyle]="{'min-width': '50rem'}"
+          (onRowSelect)="onRowSelectedUsers($event, tabel)" [paginator]="true" [rows]="10"
+          dataKey="noIndex" [selection]="selectedUser" (onRowUnselect)="onRowUnselectedUsers($event)"
+          editMode="row" [rowSelectable]="canSelectUsersRow">
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="max-width: 4rem; width: 4rem;">No</th>
+            <th style="padding-left: 0.4rem;">Nama</th>
+            <th>Password</th>
+            <th>Create Time</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-user let-i="rowIndex" let-editing="editing">
+          <tr [pSelectableRow]="user" [pEditableRow]="user"
+              [ngClass]="{'row-accessories': user.editing}">
+            <td style="max-width: 4rem; min-width: 4rem;; overflow-x: hidden;">{{i + 1}}</td>
+<!--
+            <td>{{ user.name }}</td>(change)="userNameChanged($event)"
+            max-width: 20rem; min-width: 20rem; 
+ -->            
+            <td style="padding: 0.4rem; overflow-x: hidden; width: 20rem;">
+              <p-cellEditor>
+                <ng-template pTemplate="input" style="overflow-x: hidden;">
+                  <input pInputText type="text" [(ngModel)]="user.name" />
+                </ng-template>
+                <ng-template pTemplate="output">
+                  {{ user.name }}
+                </ng-template>
+              </p-cellEditor>
+            </td>
+            <td style="padding: 0.4rem; overflow-x: hidden; width: 20rem;">
+              <p-cellEditor>
+                <ng-template pTemplate="input" style="overflow-x: hidden;">
+                  <input pInputText [type]="pswdInpType" [(ngModel)]="user.passwd"/>
+                  <span [class]="eyeSpanClz" (click)="eyeClicked()"></span>
+                </ng-template>
+                <ng-template pTemplate="output">*******</ng-template>
+              </p-cellEditor>
+            </td>
+            <td>{{ user.createTime | date: 'dd MMM yyyy HH:mm:ss'}}</td>
+<!-- 
+            <td>
+              <div class="flex align-items-center justify-content-center gap-2">
+                  <button *ngIf="!editing" pButton pRipple type="button" pInitEditableRow icon="pi pi-pencil"
+                     #btn class="p-button-rounded p-button-text" id="id{{i + 1}}"></button>
+              </div>
+            </td>
+ -->
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+
+    <div class="flex flex-column">
+      <p-button [icon]="personAddIcon" (click)="addUser(tabel)"
+                class="flex align-items-start justify-content-right mb-2 mx-2">
+      </p-button>
+      <p-button [icon]="personEditIcon" styleClass="p-button-warning" (click)="editUser(tabel)"
+                class="flex align-items-start justify-content-right mb-2 mx-2">
+      </p-button>
+      <p-button icon="material-icons mi-person-remove" styleClass="p-button-danger" (click)="removeUser()"
+                class="flex align-items-start justify-content-right mx-2">
+      </p-button>
+    </div>
+  </div>
+
+  <div class="grid mx-1 mt-4">
+    <div class="col-12 p-0 my-0">
+      <div class="flex overflow-hidden mb-0">
+        <div class="flex-grow-1 flex align-items-left justify-content-left font-bold mx-0 my-3 px-0 pt-4 pb-0">
+          <h5>Access Permissions</h5>
+        </div>
+        <div class="flex-none flex align-items-right justify-content-right font-bold mx-0 my-2 pl-0 pr-1 pt-3 pb-0">
+          <p-button label="Save" icon="pi pi-save" class="w-max" (click)="save()"
+                    [disabled]="selectedUser?._id == '0'">
+          </p-button>
+        </div>
+      </div>
+    </div>
+    <p-treeTable [value]="folderTree" [columns]="cols" selectionMode="single" [(selection)]="selectedFolder"
+        [scrollable]="true" scrollHeight="200px" [tableStyle]="{'min-width':'50rem'}"
+        (onNodeSelect)="onNodeSelect($event)">
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th *ngFor="let col of columns; let i = index"
+              [ngStyle]="{'width': col.width, 'text-align': i === 0 ? 'left' : 'center'}">
+            {{col.header}}
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-rowNode let-rowData="rowData" let-columns="columns">
+        <tr [ttRow]="rowNode" [ttRow]="rowNode" [ttSelectableRow]="rowNode">
+          <td *ngFor="let col of columns; let i = index"
+              [ngStyle]="{'width': col.width, 'padding': '6px', 'text-align': i === 0 ? 'left' : 'center'}"
+              ttEditableColumn [ngClass]="{ 'p-toggler-column': i === 0 }">
+
+            <p-treeTableToggler [rowNode]="rowNode" *ngIf="i === 0"></p-treeTableToggler>
+<!-- 
+            <p-treeTableCheckbox [value]="rowNode" *ngIf="i === 0"></p-treeTableCheckbox>
+            {{rowData[col.field]}}
+-->
+            <p-treeTableCellEditor *ngIf="i > 0 && rowData['name'] !== 'Documents'">
+              <ng-template pTemplate="input">
+                <p-checkbox [(ngModel)]="rowData[col.field]" [binary]="true" inputId="binary">
+                </p-checkbox>
+              </ng-template>
+              <ng-template pTemplate="output">
+                <ng-container *ngIf="rowData[col.field]">&check;</ng-container>
+              </ng-template>
+            </p-treeTableCellEditor>
+
+            <ng-container *ngIf="i === 0">
+              {{ rowData[col.field] }}
+            </ng-container>
+          </td>
+        </tr>
+      </ng-template>
+    </p-treeTable>
+  </div>
+</p-card>
